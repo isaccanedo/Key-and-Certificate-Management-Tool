@@ -158,5 +158,154 @@ KeyStore.SecretKeyEntry identified by alias.
 {-v} {-protected} {-Jjavaoption}
 ```
 
+Lê o certificado ou a cadeia de certificados (onde o último é fornecido em uma resposta formatada em PKCS # 7) do arquivo cert_file e o armazena na entrada do keystore identificada pelo alias. Se nenhum arquivo for fornecido, o certificado ou a resposta PKCS # 7 é lida do stdin.
+
+O keytool pode importar certificados X.509 v1, v2 e v3 e cadeias de certificados formatados em PKCS # 7 que consistem em certificados desse tipo. Os dados a serem importados devem ser fornecidos em formato de codificação binária ou em formato de codificação para impressão (também conhecido como codificação Base64), conforme definido pelo padrão Internet RFC 1421. No último caso, a codificação deve ser limitada no início por uma string que começa com "----- BEGIN" e no final por uma string que começa com "----- END".
+
+Você importa um certificado por dois motivos:
+
+1 - para adicioná-lo à lista de certificados confiáveis, ou
+2 - para importar uma resposta de certificado recebida de uma CA como resultado do envio de uma Solicitação de Assinatura de Certificado (consulte o comando -certreq) para essa CA.
+
+O tipo de importação pretendido é indicado pelo valor da opção -alias:
+
+1 - Se o alias não apontar para uma entrada de chave, o keytool presume que você está adicionando uma entrada de certificado confiável. Nesse caso, o alias ainda não deve existir no armazenamento de chaves. Se o alias já existir, o keytool gerará um erro, pois já existe um certificado confiável para esse alias e não importa o certificado.
+2 - Se o alias apontar para uma entrada de chave, o keytool presume que você está importando uma resposta de certificado.
+
+### Importando um novo certificado confiável
+Antes de incluir o certificado no keystore, o keytool tenta verificá-lo tentando construir uma cadeia de confiança desse certificado para um certificado autoassinado (pertencente a uma CA raiz), usando certificados confiáveis que já estão disponíveis no keystore.
+
+Se a opção -trustcacerts foi especificada, certificados adicionais são considerados para a cadeia de confiança, ou seja, os certificados em um arquivo denominado "cacerts".
+
+Se o keytool falhar em estabelecer um caminho confiável do certificado a ser importado até um certificado autoassinado (do keystore ou do arquivo "cacerts"), as informações do certificado são impressas e o usuário é solicitado a verificá-lo, por exemplo, comparando as impressões digitais do certificado exibidas com as impressões digitais obtidas de alguma outra fonte (confiável) de informação, que pode ser o próprio proprietário do certificado. Tenha muito cuidado para garantir que o certificado seja válido antes de importá-lo como um certificado "confiável"! - consulte AVISO sobre a importação de certificados confiáveis. O usuário tem então a opção de abortar a operação de importação. Se a opção -noprompt for fornecida, no entanto, não haverá interação com o usuário.
+
+### Importando uma resposta de certificado
+Ao importar uma resposta de certificado, a resposta de certificado é validada usando certificados confiáveis do armazenamento de chaves e, opcionalmente, usando os certificados configurados no arquivo de armazenamento de chaves "cacerts" (se a opção -trustcacerts foi especificada).
+
+Os métodos para determinar se a resposta do certificado é confiável são descritos a seguir:
+
+- Se a resposta for um único certificado X.509, o keytool tenta estabelecer uma cadeia de confiança, começando na resposta do certificado e terminando em um certificado autoassinado (pertencente a uma CA raiz). A resposta do certificado e a hierarquia de certificados usados ​​para autenticar a resposta do certificado formam a nova cadeia de certificados de alias. Se uma cadeia de confiança não puder ser estabelecida, a resposta do certificado não será importada. Nesse caso, o keytool não imprime o certificado e solicita que o usuário o verifique, porque é muito difícil (se não impossível) para um usuário determinar a autenticidade da resposta do certificado.
+- Se a resposta for uma cadeia de certificados formatados em PKCS # 7, a cadeia é ordenada primeiro (com o certificado do usuário primeiro e o certificado CA raiz autoassinado por último), antes que o keytool tente combinar o certificado CA raiz fornecido na resposta com qualquer dos certificados confiáveis ​​no armazenamento de chaves ou no arquivo de armazenamento de chaves "cacerts" (se a opção -trustcacerts foi especificada). Se nenhuma correspondência for encontrada, as informações do certificado de CA raiz são impressas, e o usuário é solicitado a verificá-lo, por exemplo, comparando as impressões digitais do certificado exibidas com as impressões digitais obtidas de alguma outra fonte (confiável) de informação, que pode ser a própria CA raiz. O usuário tem então a opção de abortar a operação de importação. Se a opção -noprompt for fornecida, no entanto, não haverá interação com o usuário.
+
+Se a chave pública na resposta do certificado corresponder à chave pública do usuário já armazenada com o alias, a cadeia de certificados antiga será substituída pela nova cadeia de certificados na resposta. A cadeia antiga só pode ser substituída se um keypass válido, a senha usada para proteger a chave privada da entrada, for fornecido. Se nenhuma senha for fornecida e a senha da chave privada for diferente da senha do keystore, o usuário será solicitado a fazê-lo.
+
+Este comando era denominado -import em releases anteriores. Este nome antigo ainda é suportado neste lançamento e será suportado em lançamentos futuros, mas para esclarecer o novo nome, -importcert, é preferível daqui para frente.
+
+```
+-importkeystore -srckeystore srckeystore -destkeystore destkeystore {-srcstoretype srcstoretype} 
+{-deststoretype deststoretype} [-srcstorepass srcstorepass] [-deststorepass deststorepass] 
+{-srcprotected} {-destprotected} {-srcalias srcalias {-destalias destalias} [-srckeypass srckeypass] 
+[-destkeypass destkeypass] } {-noprompt} {-srcProviderName src_provider_name} 
+{-destProviderName dest_provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} 
+{-v} {-protected} {-Jjavaoption}
+```
+
+Importa uma única entrada ou todas as entradas de um armazenamento de chaves de origem para um armazenamento de chaves de destino.
+
+Quando a opção srcalias é fornecida, o comando importa a única entrada identificada pelo alias para o armazenamento de chaves de destino. Se um alias de destino não for fornecido com destalias, srcalias será usado como o alias de destino. Se a entrada de origem estiver protegida por uma senha, srckeypass será usado para recuperar a entrada. Se srckeypass não for fornecido, o keytool tentará usar srcstorepass para recuperar a entrada. Se srcstorepass não for fornecido ou estiver incorreto, o usuário será solicitado a fornecer uma senha. A entrada de destino será protegida usando destkeypass. Se destkeypass não for fornecido, a entrada de destino será protegida com a senha de entrada de origem.
+
+Se a opção srcalias não for fornecida, todas as entradas no armazenamento de chaves de origem serão importadas para o armazenamento de chaves de destino. Cada entrada de destino será armazenada sob o alias da entrada de origem. Se a entrada de origem estiver protegida por uma senha, srcstorepass será usado para recuperar a entrada. Se srcstorepass não for fornecido ou estiver incorreto, o usuário será solicitado a fornecer uma senha. Se um tipo de entrada de armazenamento de chaves de origem não for suportado no armazenamento de chaves de destino ou se ocorrer um erro ao armazenar uma entrada no armazenamento de chaves de destino, o usuário será solicitado a ignorar a entrada e continuar ou encerrar. A entrada de destino será protegida com a senha de entrada de origem.
+
+Se o alias de destino já existir no armazenamento de chaves de destino, o usuário será solicitado a sobrescrever a entrada ou a criar uma nova entrada com um nome de alias diferente.
+
+Observe que se -noprompt for fornecido, o usuário não será solicitado a fornecer um novo alias de destino. As entradas existentes serão substituídas automaticamente pelo nome do alias de destino. Finalmente, as entradas que não podem ser importadas são automaticamente ignoradas e um aviso é enviado.
+
+### Exportando dados
+
+```
+-certreq {-alias alias} {-sigalg sigalg} {-file certreq_file} [-keypass keypass] 
+{-storetype storetype} {-keystore keystore} [-storepass storepass] {-providerName provider_name} 
+{-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} {-Jjavaoption}
+```
+Gera uma solicitação de assinatura de certificado (CSR), usando o formato PKCS # 10.
+
+Um CSR deve ser enviado a uma autoridade de certificação (CA). A CA autenticará o solicitante do certificado (geralmente off-line) e retornará um certificado ou cadeia de certificados, usado para substituir a cadeia de certificados existente (que consiste inicialmente em um certificado autoassinado) no armazenamento de chaves.
+
+A chave privada e o nome distinto X.500 associados ao alias são usados ​​para criar a solicitação de certificado PKCS # 10. Para acessar a chave privada, a senha apropriada deve ser fornecida, uma vez que as chaves privadas são protegidas no armazenamento de chaves com uma senha. Se o keypass não for fornecido na linha de comando e for diferente da senha usada para proteger a integridade do keystore, o usuário será solicitado a fazê-lo.
+
+sigalg especifica o algoritmo que deve ser usado para assinar o CSR.
+
+O CSR é armazenado no arquivo certreq_file. Se nenhum arquivo for fornecido, o CSR é enviado para stdout.
+
+Use o comando importcert para importar a resposta do CA.
+
+```
+-exportcert {-alias alias} {-file cert_file} {-storetype storetype} {-keystore keystore} 
+[-storepass storepass] {-providerName provider_name} {-providerClass provider_class_name 
+{-providerArg provider_arg}} {-rfc} {-v} {-protected} {-Jjavaoption}
+```
+
+Lê (do armazenamento de chaves) o certificado associado ao alias e o armazena no arquivo cert_file.
+
+Se nenhum arquivo for fornecido, o certificado será enviado para stdout.
+
+O certificado é, por padrão, emitido em codificação binária, mas, em vez disso, será emitido no formato de codificação para impressão, conforme definido pelo padrão RFC 1421 da Internet, se a opção -rfc for especificada.
+
+Se o alias se referir a um certificado confiável, esse certificado será emitido. Caso contrário, alias se refere a uma entrada de chave com uma cadeia de certificação associada. Nesse caso, o primeiro certificado da cadeia é retornado. Este certificado autentica a chave pública da entidade endereçada pelo alias.
+
+Este comando era denominado -export em releases anteriores. Este nome antigo ainda é suportado neste lançamento e será suportado em lançamentos futuros, mas para esclarecer o novo nome, -exportcert, é preferível daqui para frente.
+
+### Exibindo dados
+```
+-list {-alias alias} {-storetype storetype} {-keystore keystore} [-storepass storepass] 
+{-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} 
+{-v | -rfc} {-protected} {-Jjavaoption}
+```
+
+Prints (to stdout) the contents of the keystore entry identified by alias. If no alias is specified, the contents of the entire keystore are printed.
+
+This command by default prints the MD5 fingerprint of a certificate. If the -v option is specified, the certificate is printed in human-readable format, with additional information such as the owner, issuer, serial number, and any extensions. If the -rfc option is specified, certificate contents are printed using the printable encoding format, as defined by the Internet RFC 1421 standard
+
+You cannot specify both -v and -rfc.
+
+```
+-printcert {-file cert_file} {-v} {-Jjavaoption}
+```
+
+Lê o certificado do arquivo cert_file e imprime seu conteúdo em um formato legível. Se nenhum arquivo for fornecido, o certificado será lido do stdin.
+
+O certificado pode ser codificado em binário ou em formato de codificação para impressão, conforme definido pelo padrão RFC 1421 da Internet.
+
+Observação: essa opção pode ser usada independentemente de um armazenamento de chaves.
+
+### Gerenciando o Keystore
+
+```
+-storepasswd [-new new_storepass] {-storetype storetype} {-keystore keystore} [-storepass storepass] 
+{-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} 
+{-v} {-Jjavaoption}
+Altera a senha usada para proteger a integridade do conteúdo do keystore. 
+A nova senha é new_storepass, que deve ter pelo menos 6 caracteres.
+```
+
+```
+-keypasswd {-alias alias} [-keypass old_keypass] [-new new_keypass] {-storetype storetype} 
+{-keystore keystore} [-storepass storepass] {-providerName provider_name} 
+{-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-Jjavaoption}
+Altera a senha sob a qual a chave privada / secreta identificada pelo alias é protegida, 
+de old_keypass para new_keypass, que deve ter pelo menos 6 caracteres.
+```
+Se a opção -keypass não for fornecida na linha de comandos e a senha da chave for diferente da senha do keystore, o usuário será solicitado a fazê-lo.
+
+Se a opção -new não for fornecida na linha de comando, o usuário será solicitado a fazê-lo.
+
+```
+-delete [-alias alias] {-storetype storetype} {-keystore keystore} [-storepass storepass] 
+{-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} 
+{-v} {-protected} {-Jjavaoption}
+Exclui do armazenamento de chaves a entrada identificada pelo alias. O usuário é solicitado 
+a fornecer o alias, se nenhum alias for fornecido na linha de comando.
+```
+```
+-changealias {-alias alias} [-destalias destalias] [-keypass keypass] {-storetype storetype} 
+{-keystore keystore} [-storepass storepass] {-providerName provider_name} 
+{-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} {-Jjavaoption}
+Mova uma entrada de keystore existente do alias especificado para um novo alias, destalias. 
+Se nenhum alias de destino for fornecido, o comando solicitará um. Se a entrada original 
+estiver protegida por uma senha de entrada, a senha pode ser fornecida por meio 
+da opção "-keypass". Se nenhuma senha de chave for fornecida, o storepass (se fornecido) 
+será tentado primeiro. Se essa tentativa falhar, o usuário será solicitado a fornecer uma senha.
+```
+
 
 
