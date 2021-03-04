@@ -307,5 +307,156 @@ da opção "-keypass". Se nenhuma senha de chave for fornecida, o storepass (se 
 será tentado primeiro. Se essa tentativa falhar, o usuário será solicitado a fornecer uma senha.
 ```
 
+### Conseguindo ajuda
+
+```
+-help
+```
+Lista os comandos básicos e suas opções.
+
+### Exemplos
+Suponha que você queira criar um armazenamento de chaves para gerenciar seu par de chaves públicas / privadas e certificados de entidades em que você confia.
+
+#### Gerando Seu Par de Chaves
+A primeira coisa que você precisa fazer é criar um armazenamento de chaves e gerar o par de chaves. Você pode usar um comando como o seguinte:
+```
+keytool -genkeypair -dname "cn=Mark Jones, ou=JavaSoft, o=Sun, c=US"
+      -alias business -keypass kpi135 -keystore C:\working\mykeystore
+      -storepass ab987c -validity 180
+```
+(Observação: deve ser digitado como uma única linha. Várias linhas são usadas nos exemplos apenas para fins de legibilidade.)
+
+Este comando cria o keystore denominado "mykeystore" no diretório "C: \ working" (presumindo que ainda não exista) e atribui a ele a senha "ab987c". Ele gera um par de chaves pública / privada para a entidade cujo "nome distinto" tem um nome comum de "Mark Jones", unidade organizacional de "JavaSoft", organização de "Sun" e código de país de duas letras "US". Ele usa o algoritmo de geração de chave "DSA" padrão para criar as chaves, ambas com 1024 bits.
+
+Ele cria um certificado autoassinado (usando o algoritmo de assinatura "SHA1withDSA" padrão) que inclui a chave pública e as informações de nome distinto. Este certificado será válido por 180 dias e está associado à chave privada em uma entrada de armazenamento de chaves denominada pelo alias "negócio". A chave privada recebe a senha "kpi135".
+
+O comando poderia ser significativamente mais curto se os padrões das opções fossem aceitos. Na verdade, nenhuma opção é necessária; padrões são usados ​​para opções não especificadas que possuem valores padrão e você é solicitado a fornecer quaisquer valores necessários. Assim, você poderia simplesmente ter o seguinte:
+
+```
+keytool -genkeypair
+```
+Nesse caso, uma entrada de keystore com alias "mykey" é criada, com um par de chaves recém-gerado e um certificado válido por 90 dias. Essa entrada é colocada no armazenamento de chaves denominado ".keystore" em seu diretório inicial. (O keystore é criado se ainda não existir.) Você será solicitado a fornecer as informações do nome distinto, a senha do keystore e a senha da chave privada.
+O restante dos exemplos presume que você executou o comando -genkeypair sem opções especificadas e que respondeu aos prompts com valores iguais aos fornecidos no primeiro comando -genkeypair, acima (uma senha de chave privada "kpi135", etc.)
+
+### Solicitando um certificado assinado de uma autoridade de certificação
+Até agora, tudo o que temos é um certificado autoassinado. Um certificado tem mais probabilidade de ser confiável para outras pessoas se for assinado por uma Autoridade de Certificação (CA). Para obter essa assinatura, primeiro você gera uma Solicitação de assinatura de certificado (CSR), por meio do seguinte:
+
+```
+keytool -certreq -file MarkJ.csr
+```
+Isso cria um CSR (para a entidade identificada pelo alias padrão "mykey") e coloca a solicitação no arquivo denominado "MarkJ.csr". Envie este arquivo para uma CA, como a VeriSign, Inc. A CA irá autenticar você, o solicitante (geralmente off-line), e então irá retornar um certificado, assinado por eles, autenticando sua chave pública. (Em alguns casos, eles realmente retornarão uma cadeia de certificados, cada um autenticando a chave pública do signatário do certificado anterior na cadeia.)
+
+### Importando um Certificado para a CA
+Você precisa substituir seu certificado autoassinado por uma cadeia de certificados, onde cada certificado na cadeia autentica a chave pública do signatário do certificado anterior na cadeia, até uma CA "raiz".
+
+Antes de importar a resposta do certificado de uma CA, você precisa de um ou mais "certificados confiáveis" em seu armazenamento de chaves ou no arquivo de armazenamento de chaves cacerts (que é descrito no comando importcert):
+
+- Se a resposta do certificado for uma cadeia de certificados, você só precisa do certificado superior da cadeia (ou seja, o certificado CA "raiz" que autentica a chave pública dessa CA).
+- Se a resposta do certificado for um único certificado, você precisa de um certificado para a CA emissora (aquela que o assinou), e se esse certificado não for autoassinado, você precisa de um certificado para seu signatário, e assim por diante, até um certificado de CA "raiz" autoassinado.
+
+O arquivo de armazenamento de chaves "cacerts" é enviado com cinco certificados de CA raiz da VeriSign, portanto, você provavelmente não precisará importar um certificado da VeriSign como um certificado confiável em seu armazenamento de chaves. Mas se você solicitar um certificado assinado de uma CA diferente, e um certificado que autentica essa chave pública da CA não foi adicionado a "cacerts", você precisará importar um certificado da CA como um "certificado confiável".
+
+Um certificado de uma CA geralmente é autoassinado ou assinado por outra CA (nesse caso, você também precisa de um certificado que autentique a chave pública dessa CA). Suponha que a empresa ABC, Inc. seja uma CA e você obtenha um arquivo chamado "ABCCA.cer" que é supostamente um certificado autoassinado da ABC, autenticando a chave pública dessa CA.
+
+Tenha muito cuidado para garantir que o certificado seja válido antes de importá-lo como um certificado "confiável"! Visualize-o primeiro (usando o comando keytool -printcert ou o comando keytool -importcert sem a opção -noprompt) e certifique-se de que as impressões digitais do certificado exibidas correspondem às esperadas. Você pode ligar para a pessoa que enviou o certificado e comparar a (s) impressão (ões) digital (is) que você vê com as que ela mostra (ou que mostra um repositório de chave pública seguro). Somente se as impressões digitais forem iguais é que é garantido que o certificado não foi substituído em trânsito pelo certificado de outra pessoa (por exemplo, de um invasor). Se tal ataque ocorrer e você não verificar o certificado antes de importá-lo, você acabará confiando em tudo o que o invasor assinou.
+
+Se você acredita que o certificado é válido, você pode adicioná-lo ao seu armazenamento de chaves por meio do seguinte:
+```
+keytool -importcert -alias abc -file ABCCA.cer
+```
+Isso cria uma entrada de "certificado confiável" no armazenamento de chaves, com os dados do arquivo "ABCCA.cer" e atribui o alias "abc" à entrada.
+
+### Importando a resposta do certificado da CA
+Depois de importar um certificado que autentica a chave pública da CA para a qual enviou sua solicitação de assinatura de certificado (ou já existe tal certificado no arquivo "cacerts"), você pode importar a resposta do certificado e, assim, substituir seu certificado autoassinado com uma cadeia de certificados. Esta cadeia é aquela retornada pela CA em resposta à sua solicitação (se a resposta da CA for uma cadeia), ou uma construída (se a resposta da CA for um único certificado) usando a resposta do certificado e certificados confiáveis que já estão disponíveis no keystore onde você importa a resposta ou no arquivo keystore "cacerts".
+
+Por exemplo, suponha que você tenha enviado sua solicitação de assinatura de certificado à VeriSign. Você pode então importar a resposta por meio do seguinte, que presume que o certificado retornado é denominado "VSMarkJ.cer":
+```
+keytool -importcert -trustcacerts -file VSMarkJ.cer
+```
+### Exportando um certificado que autentica sua chave pública
+Suponha que você tenha usado a ferramenta jarsigner para assinar um arquivo Java ARchive (JAR). Os clientes que desejam usar o arquivo irão querer autenticar sua assinatura.
+Uma maneira de fazer isso é primeiro importando seu certificado de chave pública para o armazenamento de chaves como uma entrada "confiável". Você pode exportar o certificado e fornecê-lo aos seus clientes. Como exemplo, você pode copiar seu certificado para um arquivo denominado MJ.cer por meio do seguinte, supondo que a entrada tenha o alias de "mykey":
+```
+keytool -exportcert -alias mykey -file MJ.cer
+```
+Dado esse certificado e o arquivo JAR assinado, um cliente pode usar a ferramenta jarsigner para autenticar sua assinatura.
+
+Importando Keystore
+O comando "importkeystore" é usado para importar um keystore inteiro para outro keystore, o que significa que todas as entradas do keystore de origem, incluindo chaves e certificados, são todas importadas para o keystore de destino em um único comando. Você pode usar este comando para importar entradas de um tipo diferente de armazenamento de chaves. Durante a importação, todas as novas entradas no armazenamento de chaves de destino terão os mesmos nomes de alias e senhas de proteção (para chaves secretas e chaves privadas). Se o keytool tiver dificuldades para recuperar as chaves privadas ou chaves secretas do armazenamento de chaves de origem, ele solicitará uma senha. Se detectar a duplicação de alias, ele solicitará um novo, você pode especificar um novo alias ou simplesmente permitir que o keytool sobrescreva o existente.
+
+Por exemplo, para importar entradas de um keystore key.jks do tipo JKS normal para um keystore baseado em hardware do tipo PKCS#11, você pode usar o comando:
+```
+keytool -importkeystore
+    -srckeystore key.jks -destkeystore NONE
+    -srcstoretype JKS -deststoretype PKCS11
+    -srcstorepass changeit -deststorepass topsecret
+```
+O comando importkeystore também pode ser usado para importar uma única entrada de um armazenamento de chaves de origem para um armazenamento de chaves de destino. Neste caso, além das opções que você vê no exemplo acima, você precisa especificar o alias que deseja importar. Com a opção srcalias fornecida, você também pode especificar o nome do apelido do destino na linha de comando, bem como a senha de proteção para uma chave secreta / privada e a senha de proteção de destino desejada. Dessa forma, você pode emitir um comando keytool que nunca fará uma pergunta. Isso torna muito conveniente incluir um comando keytool em um arquivo de script, como este:
+```
+keytool -importkeystore
+    -srckeystore key.jks -destkeystore NONE
+    -srcstoretype JKS -deststoretype PKCS11
+    -srcstorepass changeit -deststorepass topsecret
+    -srcalias myprivatekey -destalias myoldprivatekey
+    -srckeypass oldkeypass -destkeypass mynewkeypass
+    -noprompt
+```
+### Terminologia e avisos
+#### KeyStore
+Um keystore é um recurso de armazenamento para chaves criptográficas e certificados.
+
+### KeyStore Entries
+Os keystores podem ter diferentes tipos de entradas. Os dois tipos de entrada mais aplicáveis para keytool incluem:
+- Entradas de chave - cada uma contém informações de chave criptográfica muito confidenciais, que são armazenadas em um formato protegido para evitar acesso não autorizado. Normalmente, uma chave armazenada neste tipo de entrada é uma chave secreta ou uma chave privada acompanhada pela "cadeia" de certificados para a chave pública correspondente. O keytool pode lidar com os dois tipos de entrada, enquanto a ferramenta jarsigner apenas lida com o último tipo de entrada, ou seja, as chaves privadas e suas cadeias de certificados associadas.
+- Entradas de certificados confiáveis - cada uma contém um único certificado de chave pública pertencente a outra parte. É chamado de "certificado confiável" porque o proprietário do keystore confia que a chave pública no certificado realmente pertence à identidade identificada pelo "assunto" (proprietário) do certificado. O emissor do certificado atesta isso, assinando o certificado.
+
+### KeyStore Aliases
+Todas as entradas de keystore (entradas de chave e certificados confiáveis) são acessadas por meio de aliases exclusivos.
+
+Um alias é especificado quando você adiciona uma entidade ao armazenamento de chaves usando o comando -genseckey para gerar uma chave secreta, o comando -genkeypair para gerar um par de chaves (chave pública e privada) ou o comando -importcert para adicionar um certificado ou cadeia de certificados a a lista de certificados confiáveis. Os comandos keytool subsequentes devem usar esse mesmo alias para se referir à entidade.
+
+Por exemplo, suponha que você use o alias duke para gerar um novo par de chaves pública / privada e envolver a chave pública em um certificado autoassinado (consulte Cadeias de certificados) por meio do seguinte comando:
+```
+keytool -genkeypair -alias duke -keypass dukekeypasswd
+```
+Isso especifica uma senha inicial de "dukekeypasswd" exigida pelos comandos subsequentes para acessar a chave privada associada ao apelido duke. Se mais tarde você quiser alterar a senha da chave privada do duque, use um comando como o seguinte:
+```
+keytool -keypasswd -alias duke -keypass dukekeypasswd -new newpass
+```
+Isso muda a senha de "dukekeypasswd" para "newpass".
+Observação: Na verdade, uma senha não deve ser especificada em uma linha de comando ou em um script, a menos que seja para fins de teste ou se você estiver em um sistema seguro. Se você não especificar uma opção de senha obrigatória em uma linha de comando, ela será solicitada.
+
+### Implementação de KeyStore
+A classe KeyStore fornecida no pacote java.security fornece interfaces bem definidas para acessar e modificar as informações em um armazenamento de chaves. É possível que haja várias implementações concretas diferentes, em que cada implementação é aquela para um tipo específico de armazenamento de chaves.
+Atualmente, duas ferramentas de linha de comando (keytool e jarsigner) e uma ferramenta baseada em GUI chamada Policy Tool fazem uso de implementações de keystore. Como o KeyStore está disponível publicamente, os usuários podem escrever aplicativos de segurança adicionais que o utilizem.
+
+Há uma implementação padrão integrada, fornecida pela Sun Microsystems. Ele implementa o armazenamento de chave como um arquivo, utilizando um tipo de armazenamento de chave proprietário (formato) denominado "JKS". Ele protege cada chave privada com sua senha individual e também protege a integridade de todo o armazenamento de chaves com uma senha (possivelmente diferente).
+
+As implementações de keystore são baseadas no provedor. Mais especificamente, as interfaces de aplicativo fornecidas pelo KeyStore são implementadas em termos de uma "Service Provider Interface" (SPI). Ou seja, há uma classe KeystoreSpi abstrata correspondente, também no pacote java.security, que define os métodos da Interface do provedor de serviços que os "provedores" devem implementar. (O termo "provedor" se refere a um pacote ou conjunto de pacotes que fornecem uma implementação concreta de um subconjunto de serviços que podem ser acessados ​​pela API de segurança Java.) Assim, para fornecer uma implementação de keystore, os clientes devem implementar um "provedor "e fornecer uma implementação de subclasse KeystoreSpi, conforme descrito em Como implementar um provedor para a arquitetura de criptografia Java.
+
+Os aplicativos podem escolher diferentes tipos de implementações de keystore de diferentes provedores, usando o método de fábrica "getInstance" fornecido na classe KeyStore. Um tipo de armazenamento de chave define o armazenamento e o formato de dados das informações do armazenamento de chave e os algoritmos usados ​​para proteger as chaves privadas / secretas no armazenamento de chave e a integridade do próprio armazenamento de chave. Implementações de keystore de diferentes tipos não são compatíveis.
+
+keytool funciona em qualquer implementação de keystore baseada em arquivo. (Ele trata o local do keytore que é passado para ele na linha de comando como um nome de arquivo e o converte em um FileInputStream, a partir do qual carrega as informações do keystore.) As ferramentas jarsigner e policytool, por outro lado, podem ler um keystore de qualquer local que pode ser especificado usando um URL.
+
+Para keytool e jarsigner, você pode especificar um tipo de keystore na linha de comando, por meio da opção -storetype. Para a ferramenta de política, você pode especificar um tipo de armazenamento de chave por meio do menu "Armazenamento de chave".
+
+Se você não especificar explicitamente um tipo de armazenamento de chave, as ferramentas escolherão uma implementação de armazenamento de chave com base simplesmente no valor da propriedade keystore.type especificada no arquivo de propriedades de segurança. O arquivo de propriedades de segurança é chamado de java.security e reside no diretório de propriedades de segurança, java.home \ lib \ security, em que java.home é o diretório do ambiente de tempo de execução (o diretório jre no SDK ou o diretório de nível superior do o Java 2 Runtime Environment).
+
+Cada ferramenta obtém o valor keystore.type e examina todos os provedores atualmente instalados até encontrar um que implemente armazenamentos de chaves desse tipo. Em seguida, ele usa a implementação de armazenamento de chaves desse provedor.
+
+A classe KeyStore define um método estático denominado getDefaultType que permite que aplicativos e miniaplicativos recuperem o valor da propriedade keystore.type. A linha de código a seguir cria uma instância do tipo de keystore padrão (conforme especificado na propriedade keystore.type):
+```
+KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+```
+O tipo de keystore padrão é "jks" (o tipo proprietário da implementação de keystore fornecida pela Sun). Isso é especificado pela seguinte linha no arquivo de propriedades de segurança:
+```
+keystore.type=jks
+```
+Para que as ferramentas utilizem uma implementação de keystore diferente do padrão, você pode alterar essa linha para especificar um tipo de keystore diferente.
+
+Por exemplo, se você tiver um pacote de provedor que fornece uma implementação de armazenamento de chave para um tipo de armazenamento de chave chamado "pkcs12", altere a linha para
+```
+keystore.type=pkcs12
+```
 
 
