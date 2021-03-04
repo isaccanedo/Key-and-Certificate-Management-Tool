@@ -531,163 +531,42 @@ Um arquivo de certificados denominado "cacerts" reside no diretório de propried
 
 O arquivo "cacerts" representa um armazenamento de chaves de todo o sistema com certificados CA. Os administradores do sistema podem configurar e gerenciar esse arquivo usando o keytool, especificando "jks" como o tipo de keystore. O arquivo keystore "cacerts" é enviado com vários certificados de CA raiz com os seguintes aliases e nomes distintos de proprietário X.500:
 
-Alias: thawtepersonalfreemailca
+- Alias: thawtepersonalfreemailca
 Owner DN: EmailAddress=personal-freemail@thawte.com,
 CN=Thawte Personal Freemail CA,
 OU=Certification Services Division,
 O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
-Alias: thawtepersonalbasicca
+- Alias: thawtepersonalbasicca
 Owner DN: EmailAddress=personal-basic@thawte.com,
 CN=Thawte Personal Basic CA,
 OU=Certification Services Division,
 O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
-Alias: thawtepersonalpremiumca
+- Alias: thawtepersonalpremiumca
 Owner DN: EmailAddress=personal-premium@thawte.com,
 CN=Thawte Personal Premium CA,
 OU=Certification Services Division,
 O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
-Alias: thawteserverca
+- Alias: thawteserverca
 Owner DN: EmailAddress=server-certs@thawte.com,
 CN=Thawte Server CA, OU=Certification Services Division,
 O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
-Alias: thawtepremiumserverca
-Owner DN: EmailAddress=premium-server@thawte.com,
-CN=Thawte Premium Server CA,
-OU=Certification Services Division,
-O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
-Alias: verisignclass1ca
-Owner DN: OU=Class 1 Public Primary Certification Authority,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass2ca
-Owner DN: OU=Class 2 Public Primary Certification Authority,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass3ca
-Owner DN: OU=Class 3 Public Primary Certification Authority,
-O="VeriSign, Inc.", C=US
-Alias: verisignserverca
-Owner DN: OU=Secure Server Certification Authority,
-O="RSA Data Security, Inc.", C=US
-Alias: verisignclass1g2ca
-Owner DN: OU=VeriSign Trust Network,
-OU="(c) 1998 VeriSign, Inc. - For authorized use only",
-OU=Class 1 Public Primary Certification Authority - G2,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass1g3ca
-Owner DN: CN=VeriSign Class 1 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only",
-OU=VeriSign Trust Network,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass2g2ca
-Owner DN: OU=VeriSign Trust Network,
-OU="(c) 1998 VeriSign, Inc. - For authorized use only",
-OU=Class 2 Public Primary Certification Authority - G2,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass2g3ca
-Owner DN: CN=VeriSign Class 2 Public Primary Certification Authority - G3,
-OU="(c) 1999 VeriSign, Inc. - For authorized use only",
-OU=VeriSign Trust Network,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass3g2ca
-Owner DN: OU=VeriSign Trust Network,
-OU="(c) 1998 VeriSign, Inc. - For authorized use only",
-OU=Class 3 Public Primary Certification Authority - G2,
-O="VeriSign, Inc.", C=US
-Alias: verisignclass3g3ca
-Owner DN: CN=VeriSign Class 3 Public Primary Certification Authority - G3,
-OU="(c) 1999 VeriSign, Inc. - For authorized use only",
-OU=VeriSign Trust Network,
-O="VeriSign, Inc.", C=US
-Alias: baltimorecodesigningca
-Owner DN: CN=Baltimore CyberTrust Code Signing Root,
-OU=CyberTrust, O=Baltimore, C=IE
-Alias: gtecybertrustglobalca
-Owner DN: CN=GTE CyberTrust Global Root,
-OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
-Alias: baltimorecybertrustca
-Owner DN: CN=Baltimore CyberTrust Root,
-OU=CyberTrust, O=Baltimore, C=IE
-Alias: gtecybertrust5ca
-Owner DN: CN=GTE CyberTrust Root 5,
-OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
-Alias: entrustclientca
-Owner DN: CN=Entrust.net Client Certification Authority,
-OU=(c) 1999 Entrust.net Limited,
-OU=www.entrust.net/Client_CA_Info/CPS incorp. by ref. limits liab.,
-O=Entrust.net, C=US
-Alias: entrustglobalclientca
-Owner DN: CN=Entrust.net Client Certification Authority,
-OU=(c) 2000 Entrust.net Limited,
-OU=www.entrust.net/GCCA_CPS incorp. by ref. (limits liab.),
-O=Entrust.net
-Alias: entrust2048ca
-Owner DN: CN=Entrust.net Certification Authority (2048),
-OU=(c) 1999 Entrust.net Limited,
-OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.),
-O=Entrust.net
-Alias: entrustsslca
-Owner DN: CN=Entrust.net Secure Server Certification Authority,
-OU=(c) 1999 Entrust.net Limited,
-OU=www.entrust.net/CPS incorp. by ref. (limits liab.),
-O=Entrust.net, C=US
-Alias: entrustgsslca
-Owner DN: CN=Entrust.net Secure Server Certification Authority,
-OU=(c) 2000 Entrust.net Limited,
-OU=www.entrust.net/SSL_CPS incorp. by ref. (limits liab.),
-O=Entrust.net
-Alias: godaddyclass2ca
-Owner DN: OU=Go Daddy Class 2 Certification Authority,
-O="The Go Daddy Group, Inc.", C=US
-Alias: starfieldclass2ca
-Owner DN: OU=Starfield Class 2 Certification Authority,
-O="Starfield Technologies, Inc.", C=US
-Alias: valicertclass2ca
-Owner DN: EMAILADDRESS=info@valicert.com,
-CN=http://www.valicert.com/,
-OU=ValiCert Class 2 Policy Validation Authority,
-O="ValiCert, Inc.", L=ValiCert Validation Network
-Alias: geotrustglobalca
-Owner DN: CN=GeoTrust Global CA,
-O=GeoTrust Inc., C=US
-Alias: equifaxsecureca
-Owner DN: OU=Equifax Secure Certificate Authority,
-O=Equifax, C=US
-Alias: equifaxsecureebusinessca1
-Owner DN: CN=Equifax Secure eBusiness CA-1,
-O=Equifax Secure Inc., C=US
-Alias: equifaxsecureebusinessca2
-Owner DN: OU=Equifax Secure eBusiness CA-2,
-O=Equifax Secure, C=US
-Alias: equifaxsecureglobalebusinessca1
-Owner DN: CN=Equifax Secure Global eBusiness CA-1,
-O=Equifax Secure Inc., C=US
-Alias: soneraclass1ca
-Owner DN: CN=Sonera Class1 CA, O=Sonera, C=FI
-Alias: soneraclass2ca
-Owner DN: CN=Sonera Class2 CA, O=Sonera, C=FI
-Alias: comodoaaaca
-Owner DN: CN=AAA Certificate Services,
-O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
-Alias: addtrustclass1ca
-Owner DN: CN=AddTrust Class 1 CA Root,
-OU=AddTrust TTP Network, O=AddTrust AB, C=SE
-Alias: addtrustexternalca
-Owner DN: CN=AddTrust External CA Root,
-OU=AddTrust External TTP Network, O=AddTrust AB, C=SE
-Alias: addtrustqualifiedca
-Owner DN: CN=AddTrust Qualified CA Root,
-OU=AddTrust TTP Network, O=AddTrust AB, C=SE
-Alias: utnuserfirsthardwareca
-Owner DN: CN=UTN-USERFirst-Hardware,
-OU=http://www.usertrust.com, O=The USERTRUST Network,
-L=Salt Lake City, ST=UT, C=US
-Alias: utnuserfirstclientauthemailca
-Owner DN: CN=UTN-USERFirst-Client Authentication and Email,
-OU=http://www.usertrust.com, O=The USERTRUST Network,
-L=Salt Lake City, ST=UT, C=US
-Alias: utndatacorpsgcca
-Owner DN: CN=UTN - DATACorp SGC,
-OU=http://www.usertrust.com, O=The USERTRUST Network,
-L=Salt Lake City, ST=UT, C=US
-Alias: utnuserfirstobjectca
-Owner DN: CN=UTN-USERFirst-Object,
-OU=http://www.usertrust.com, O=The USERTRUST Network,
-L=Salt Lake City, ST=UT, C=US
+
+A senha inicial do arquivo de armazenamento de chaves "cacerts" é "changeit". Os administradores do sistema devem alterar essa senha e a permissão de acesso padrão desse arquivo ao instalar o SDK.
+
+#### IMPORTANTE
+Verifique seu arquivo cacerts
+Como você confia nos CAs no arquivo cacerts como entidades para assinar e emitir certificados para outras entidades, deve-se gerenciar o arquivo cacerts com cuidado. O arquivo cacerts deve conter apenas certificados das CAs em que você confia. É sua responsabilidade verificar os certificados de CA raiz confiáveis empacotados no arquivo cacerts e tomar suas próprias decisões de confiança. Para remover um certificado CA não confiável do arquivo cacerts, use a opção delete do comando keytool. Você pode localizar o arquivo cacerts no diretório de instalação do JRE. Entre em contato com o administrador do sistema se você não tiver permissão para editar este arquivo.
+
+### O padrão de codificação de certificado RFC 1421 da Internet
+Os certificados são freqüentemente armazenados usando o formato de codificação para impressão definido pelo padrão Internet RFC 1421, em vez de sua codificação binária. Este formato de certificado, também conhecido como "codificação Base 64", facilita a exportação de certificados para outros aplicativos por e-mail ou por algum outro mecanismo.
+
+Os certificados lidos pelos comandos -importcert e -printcert podem estar neste formato ou com codificação binária.
+
+O comando -exportcert, por padrão, gera um certificado em codificação binária, mas, em vez disso, gera um certificado no formato de codificação para impressão, se a opção -rfc for especificada.
+
+O comando -list por padrão imprime a impressão digital MD5 de um certificado. Se a opção -v for especificada, o certificado será impresso em formato legível, enquanto se a opção -rfc for especificada, o certificado será impresso no formato de codificação para impressão.
+
+Em seu formato de codificação para impressão, o certificado codificado é limitado no início por
+-----BEGIN CERTIFICATE-----
+e no final por
+-----END CERTIFICATE-----
