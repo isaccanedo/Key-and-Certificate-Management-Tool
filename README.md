@@ -97,5 +97,53 @@ storepass deve ter pelo menos 6 caracteres. Deve ser fornecido a todos os comand
 
 Ao recuperar informações do armazenamento de chaves, a senha é opcional; se nenhuma senha for fornecida, a integridade das informações recuperadas não poderá ser verificada e um aviso será exibido.
 
+```
+-providerName provider_name
+Usado para identificar o nome de um provedor de serviços criptográficos quando listado no arquivo de propriedades de segurança.
+```
+
+```
+-providerClass provider_class_name
+Usado para especificar o nome do arquivo de classe principal do provedor de serviços criptográficos quando o provedor de serviços não está listado no arquivo de propriedades de segurança.
+```
+
+```
+-providerArg provider_arg
+Usado em conjunto com -providerClass. Representa um argumento de entrada de string opcional para o construtor de provider_class_name.
+```
+```
+-protected
+Ou true ou false. Este valor deve ser especificado como verdadeiro se uma senha deve ser fornecida por meio de um caminho de autenticação protegido, como um leitor de PIN dedicado.
+```
+
+### Comandos
+#### Criação ou adição de dados ao armazenamento de chaves
+
+```
+-genkeypair {-alias alias} {-keyalg keyalg} {-keysize keysize} {-sigalg sigalg} [-dname dname] [-keypass keypass] {-validity valDays} {-storetype storetype} {-keystore keystore} [-storepass storepass] {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} {-Jjavaoption}
+```
+
+Gera um par de chaves (uma chave pública e uma chave privada associada). Envolve a chave pública em um certificado autoassinado X.509 v3, que é armazenado como uma cadeia de certificados de elemento único. Esta cadeia de certificados e a chave privada são armazenadas em uma nova entrada de armazenamento de chaves identificada por alias.
+
+keyalg especifica o algoritmo a ser usado para gerar o par de chaves e keysize especifica o tamanho de cada chave a ser gerada. sigalg especifica o algoritmo que deve ser usado para assinar o certificado autoassinado; este algoritmo deve ser compatível com keyalg.
+
+dname especifica o Nome distinto X.500 a ser associado ao alias e é usado como o emissor e os campos de assunto no certificado autoassinado. Se nenhum nome distinto for fornecido na linha de comando, o usuário será solicitado a fornecer um.
+
+keypass é uma senha usada para proteger a chave privada do par de chaves gerado. Se nenhuma senha for fornecida, o usuário será solicitado a inseri-la. Se você pressionar RETURN no prompt, a senha da chave será definida com a mesma senha usada para o armazenamento de chaves. o keypass deve ter pelo menos 6 caracteres.
+
+valDays informa o número de dias durante os quais o certificado deve ser considerado válido.
+
+Este comando era denominado -genkey em versões anteriores. Este nome antigo ainda é suportado neste lançamento e será suportado em lançamentos futuros, mas para esclarecer o novo nome, -genkeypair, é preferível daqui para frente.
+
+```
+-genseckey {-alias alias} {-keyalg keyalg} {-keysize keysize} [-keypass keypass] {-storetype storetype} {-keystore keystore} [-storepass storepass] {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} {-Jjavaoption}
+Generates a secret key and stores it in a new KeyStore.SecretKeyEntry identified by alias.
+```
+"keyalg especifica o algoritmo a ser usado para gerar a chave secreta e keysize especifica o tamanho da chave a ser gerada. keypass é uma senha usada para proteger a chave secreta. Se nenhuma senha for fornecida, o usuário será solicitado a inseri-la. Se você pressionar RETURN no prompt, a senha da chave será definida com a mesma senha usada para o armazenamento de chaves. o keypass deve ter pelo menos 6 caracteres."
+
+```
+-importcert {-alias alias} {-file cert_file} [-keypass keypass] {-noprompt} {-trustcacerts} {-storetype storetype} {-keystore keystore} [-storepass storepass] {-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} {-Jjavaoption}
+```
+
 
 
