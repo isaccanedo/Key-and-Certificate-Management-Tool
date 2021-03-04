@@ -99,29 +99,34 @@ Ao recuperar informações do armazenamento de chaves, a senha é opcional; se n
 
 ```
 -providerName provider_name
-Usado para identificar o nome de um provedor de serviços criptográficos quando listado no arquivo de propriedades de segurança.
+Usado para identificar o nome de um provedor de serviços criptográficos quando listado no arquivo 
+de propriedades de segurança.
 ```
 
 ```
 -providerClass provider_class_name
-Usado para especificar o nome do arquivo de classe principal do provedor de serviços criptográficos quando o provedor de serviços não está listado no arquivo de propriedades de segurança.
+Usado para especificar o nome do arquivo de classe principal do provedor de serviços criptográficos 
+quando o provedor de serviços não está listado no arquivo de propriedades de segurança.
 ```
 
 ```
 -providerArg provider_arg
-Usado em conjunto com -providerClass. Representa um argumento de entrada de string opcional para o construtor de provider_class_name.
+Usado em conjunto com -providerClass. Representa um argumento de entrada de string opcional para o 
+construtor de provider_class_name.
 ```
 ```
 -protected
-Ou true ou false. Este valor deve ser especificado como verdadeiro se uma senha deve ser fornecida por meio de um caminho de autenticação protegido, como um leitor de PIN dedicado.
+Ou true ou false. Este valor deve ser especificado como verdadeiro se uma senha deve ser fornecida 
+por meio de um caminho de autenticação protegido, como um leitor de PIN dedicado.
 ```
 
 ### Comandos
 #### Criação ou adição de dados ao armazenamento de chaves
 
 ```
--genkeypair {-alias alias} {-keyalg keyalg} {-keysize keysize} {-sigalg sigalg} [-dname dname] [-keypass keypass] {-validity valDays}
-{-storetype storetype} {-keystore keystore} [-storepass storepass] {-providerClass provider_class_name {-providerArg provider_arg}} {-v} 
+-genkeypair {-alias alias} {-keyalg keyalg} {-keysize keysize} {-sigalg sigalg} [-dname dname] 
+[-keypass keypass] {-validity valDays} {-storetype storetype} {-keystore keystore} 
+[-storepass storepass] {-providerClass provider_class_name {-providerArg provider_arg}} {-v} 
 {-protected} {-Jjavaoption}
 ```
 
@@ -138,15 +143,18 @@ valDays informa o número de dias durante os quais o certificado deve ser consid
 Este comando era denominado -genkey em versões anteriores. Este nome antigo ainda é suportado neste lançamento e será suportado em lançamentos futuros, mas para esclarecer o novo nome, -genkeypair, é preferível daqui para frente.
 
 ```
--genseckey {-alias alias} {-keyalg keyalg} {-keysize keysize} [-keypass keypass] {-storetype storetype} {-keystore keystore} 
-[-storepass storepass] {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} {-Jjavaoption}
-Generates a secret key and stores it in a new KeyStore.SecretKeyEntry identified by alias.
+-genseckey {-alias alias} {-keyalg keyalg} {-keysize keysize} [-keypass keypass] 
+{-storetype storetype} {-keystore keystore} [-storepass storepass] 
+{-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} 
+{-Jjavaoption} Generates a secret key and stores it in a new 
+KeyStore.SecretKeyEntry identified by alias.
 ```
 "keyalg especifica o algoritmo a ser usado para gerar a chave secreta e keysize especifica o tamanho da chave a ser gerada. keypass é uma senha usada para proteger a chave secreta. Se nenhuma senha for fornecida, o usuário será solicitado a inseri-la. Se você pressionar RETURN no prompt, a senha da chave será definida com a mesma senha usada para o armazenamento de chaves. o keypass deve ter pelo menos 6 caracteres."
 
 ```
--importcert {-alias alias} {-file cert_file} [-keypass keypass] {-noprompt} {-trustcacerts} {-storetype storetype} {-keystore keystore}
-[-storepass storepass] {-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} 
+-importcert {-alias alias} {-file cert_file} [-keypass keypass] {-noprompt} 
+{-trustcacerts} {-storetype storetype} {-keystore keystore} [-storepass storepass] 
+{-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} 
 {-Jjavaoption}
 ```
 
