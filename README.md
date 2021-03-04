@@ -22,5 +22,71 @@ Os vários comandos e suas opções são listados e descritos a seguir. Observa�
 - Os colchetes ao redor de uma opção significam que o usuário é solicitado a fornecer o (s) valor (es) se a opção não for especificada na linha de comando. (Para uma opção -keypass, se você não especificar a opção na linha de comando, o keytool tentará primeiro usar a senha do keystore para recuperar a chave privada / secreta e, se isso falhar, solicitará a chave privada / secreta senha da chave.)
 - Os itens em itálico (valores de opção) representam os valores reais que devem ser fornecidos. Por exemplo, aqui está o formato do comando -printcert:
 
+```
+keytool -printcert {-file cert_file} {-v}
+```
+
+Ao especificar um comando -printcert, substitua cert_file pelo nome do arquivo real, como em:
+
+```
+keytool -printcert -file VScert.cer
+```
+- Os valores das opções devem ser colocados entre aspas se contiverem um espaço em branco.
+- O comando -help é o padrão. Assim, a linha de comando
+
+```
+keytool
+```
+é equivalente a
+
+```
+keytool -help
+```
+
+### Opções padrão
+Abaixo estão os padrões para vários valores de opção
+
+```
+-alias "mykey"
+
+-keyalg
+    "DSA" (when using -genkeypair)
+    "DES" (when using -genseckey)
+
+-keysize
+    1024 (when using -genkeypair)
+    56 (when using -genseckey and -keyalg is "DES")
+    168 (when using -genseckey and -keyalg is "DESede")
+
+-validity 90
+
+-keystore the file named .keystore in the user's home directory
+
+-storetype the value of the "keystore.type" property in the security properties file,
+           which is returned by the static getDefaultType method in java.security.KeyStore
+
+-file stdin if reading, stdout if writing
+
+-protected false
+```
+
+Ao gerar um par de chaves pública / privada, o algoritmo de assinatura (opção -sigalg) é derivado do algoritmo da chave privada subjacente: Se a chave privada subjacente for do tipo "DSA", a opção -sigalg é padronizada para "SHA1withDSA", e se a chave privada subjacente for do tipo "RSA", o padrão -sigalg é "SHA256withRSA". Consulte a Especificação e referência da API da arquitetura de criptografia Java para obter uma lista completa de -keyalg e -sigalg à sua escolha.
+
+### Opções Comuns
+A opção -v pode aparecer para todos os comandos, exceto -help. Se aparecer, significa o modo "detalhado"; mais informações serão geradas.
+Também existe uma opção -Jjavaoption que pode aparecer para qualquer comando. Se aparecer, a string javaoption especificada é passada diretamente para o interpretador Java. Esta opção não deve conter espaços. É útil para ajustar o ambiente de execução ou uso de memória. Para obter uma lista das opções possíveis do interpretador, digite java -h ou java -X na linha de comando.
+
+Essas opções podem aparecer para todos os comandos que operam em um armazenamento de chaves:
+```
+-storetype storetype
+```
+Este qualificador especifica o tipo de keystore a ser instanciado.
+
+```
+-keystore keystore
+```
+#### O local do keystore.
+Se o tipo de armazenamento JKS for usado e um arquivo de armazenamento de chave ainda não existir, determinados comandos de keytool podem resultar na criação de um novo arquivo de armazenamento de chave. Por exemplo, se keytool -genkeypair for chamado e a opção -keystore não for especificada, o arquivo keystore padrão denominado .keystore no diretório inicial do usuário será criado se ainda não existir. Da mesma forma, se a opção -keystore ks_file for especificada, mas ks_file não existir, ele será criado
+
 
 
