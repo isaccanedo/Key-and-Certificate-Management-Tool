@@ -85,8 +85,17 @@ Este qualificador especifica o tipo de keystore a ser instanciado.
 ```
 -keystore keystore
 ```
-#### O local do keystore.
-Se o tipo de armazenamento JKS for usado e um arquivo de armazenamento de chave ainda não existir, determinados comandos de keytool podem resultar na criação de um novo arquivo de armazenamento de chave. Por exemplo, se keytool -genkeypair for chamado e a opção -keystore não for especificada, o arquivo keystore padrão denominado .keystore no diretório inicial do usuário será criado se ainda não existir. Da mesma forma, se a opção -keystore ks_file for especificada, mas ks_file não existir, ele será criado
+#### O local do keystore
+Se o tipo de armazenamento JKS for usado e um arquivo de armazenamento de chave ainda não existir, determinados comandos de keytool podem resultar na criação de um novo arquivo de armazenamento de chave. Por exemplo, se keytool -genkeypair for chamado e a opção -keystore não for especificada, o arquivo keystore padrão denominado .keystore no diretório inicial do usuário será criado se ainda não existir. Da mesma forma, se a opção -keystore ks_file for especificada, mas ks_file não existir, ele será criado.
+
+Observe que o fluxo de entrada da opção -keystore é passado para o método KeyStore.load. Se NONE for especificado como o URL, um fluxo nulo será passado para o método KeyStore.load. NONE deve ser especificado se o KeyStore não for baseado em arquivo (por exemplo, se ele residir em um dispositivo de token de hardware).
+```
+-storepass storepass
+```
+A senha que é usada para proteger a integridade do armazenamento de chaves.
+storepass deve ter pelo menos 6 caracteres. Deve ser fornecido a todos os comandos que acessam o conteúdo do keystore. Para tais comandos, se uma opção -storepass não for fornecida na linha de comandos, o usuário será solicitado a fazê-lo.
+
+Ao recuperar informações do armazenamento de chaves, a senha é opcional; se nenhuma senha for fornecida, a integridade das informações recuperadas não poderá ser verificada e um aviso será exibido.
 
 
 
