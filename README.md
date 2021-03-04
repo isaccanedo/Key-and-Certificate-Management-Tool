@@ -511,3 +511,183 @@ CN=Java Duke, OU=Java Software Division, O=Sun Microsystems Inc, C=US
 Informações de chave pública do assunto
 Esta é a chave pública da entidade que está sendo nomeada, junto com um identificador de algoritmo que especifica a qual sistema criptográfico de chave pública esta chave pertence e quaisquer parâmetros de chave associados.
 
+### Cadeias de Certificados
+O keytool pode criar e gerenciar entradas de "chave" de armazenamento de chaves, cada uma contendo uma chave privada e uma "cadeia" de certificado associada. O primeiro certificado da cadeia contém a chave pública correspondente à chave privada.
+
+Quando as chaves são geradas pela primeira vez (consulte o comando -genkeypair), a cadeia começa contendo um único elemento, um certificado autoassinado. Um certificado autoassinado é aquele para o qual o emissor (signatário) é o mesmo que o assunto (a entidade cuja chave pública está sendo autenticada pelo certificado). Sempre que o comando -genkeypair é chamado para gerar um novo par de chaves pública / privada, ele também envolve a chave pública em um certificado autoassinado.
+
+Mais tarde, depois que uma Solicitação de Assinatura de Certificado (CSR) foi gerada (consulte o comando -certreq) e enviada para uma Autoridade de Certificação (CA), a resposta da CA é importada (consulte -importcert), e o certificado autoassinado é substituído por uma cadeia de certificados. Na parte inferior da cadeia está o certificado (resposta) emitido pela CA autenticando a chave pública do assunto. O próximo certificado na cadeia é aquele que autentica a chave pública da CA.
+
+Em muitos casos, este é um certificado autoassinado (ou seja, um certificado da CA autenticando sua própria chave pública) e o último certificado da cadeia. Em outros casos, a CA pode retornar uma cadeia de certificados. Neste caso, o certificado inferior na cadeia é o mesmo (um certificado assinado pela CA, autenticando a chave pública da entrada da chave), mas o segundo certificado na cadeia é um certificado assinado por uma CA diferente, autenticando o público chave da CA para a qual você enviou o CSR. Então, o próximo certificado na cadeia será um certificado autenticando a chave da segunda CA e assim por diante, até que um certificado "raiz" autoassinado seja alcançado. Cada certificado na cadeia (após o primeiro), portanto, autentica a chave pública do signatário do certificado anterior na cadeia.
+
+Muitos CAs retornam apenas o certificado emitido, sem nenhuma cadeia de suporte, especialmente quando há uma hierarquia plana (sem CAs intermediários). Nesse caso, a cadeia de certificados deve ser estabelecida a partir de informações de certificado confiáveis ​​já armazenadas no armazenamento de chaves.
+
+Um formato de resposta diferente (definido pelo padrão PKCS # 7) também inclui a cadeia de certificados de suporte, além do certificado emitido. Ambos os formatos de resposta podem ser controlados pelo keytool.
+
+O certificado de CA de nível superior (raiz) é autoassinado. No entanto, a confiança na chave pública da raiz não vem do próprio certificado raiz (qualquer pessoa pode gerar um certificado autoassinado com o nome distinto de, digamos, a CA raiz da VeriSign!), Mas de outras fontes, como um jornal. A chave pública da CA raiz é amplamente conhecida. A única razão pela qual ele é armazenado em um certificado é porque esse é o formato compreendido pela maioria das ferramentas, então o certificado, neste caso, é usado apenas como um "veículo" para transportar a chave pública da CA raiz. Antes de adicionar o certificado de CA raiz ao armazenamento de chaves, você deve visualizá-lo (usando a opção -printcert) e comparar a impressão digital exibida com a impressão digital conhecida (obtida em um jornal, na página da Web da CA raiz, etc.).
+
+### O arquivo de certificados cacerts
+Um arquivo de certificados denominado "cacerts" reside no diretório de propriedades de segurança, java.home \ lib \ security, em que java.home é o diretório do ambiente de tempo de execução (o diretório jre no SDK ou o diretório de nível superior do Java 2 Runtime Environment )
+
+O arquivo "cacerts" representa um armazenamento de chaves de todo o sistema com certificados CA. Os administradores do sistema podem configurar e gerenciar esse arquivo usando o keytool, especificando "jks" como o tipo de keystore. O arquivo keystore "cacerts" é enviado com vários certificados de CA raiz com os seguintes aliases e nomes distintos de proprietário X.500:
+
+Alias: thawtepersonalfreemailca
+Owner DN: EmailAddress=personal-freemail@thawte.com,
+CN=Thawte Personal Freemail CA,
+OU=Certification Services Division,
+O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+Alias: thawtepersonalbasicca
+Owner DN: EmailAddress=personal-basic@thawte.com,
+CN=Thawte Personal Basic CA,
+OU=Certification Services Division,
+O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+Alias: thawtepersonalpremiumca
+Owner DN: EmailAddress=personal-premium@thawte.com,
+CN=Thawte Personal Premium CA,
+OU=Certification Services Division,
+O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+Alias: thawteserverca
+Owner DN: EmailAddress=server-certs@thawte.com,
+CN=Thawte Server CA, OU=Certification Services Division,
+O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+Alias: thawtepremiumserverca
+Owner DN: EmailAddress=premium-server@thawte.com,
+CN=Thawte Premium Server CA,
+OU=Certification Services Division,
+O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+Alias: verisignclass1ca
+Owner DN: OU=Class 1 Public Primary Certification Authority,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass2ca
+Owner DN: OU=Class 2 Public Primary Certification Authority,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass3ca
+Owner DN: OU=Class 3 Public Primary Certification Authority,
+O="VeriSign, Inc.", C=US
+Alias: verisignserverca
+Owner DN: OU=Secure Server Certification Authority,
+O="RSA Data Security, Inc.", C=US
+Alias: verisignclass1g2ca
+Owner DN: OU=VeriSign Trust Network,
+OU="(c) 1998 VeriSign, Inc. - For authorized use only",
+OU=Class 1 Public Primary Certification Authority - G2,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass1g3ca
+Owner DN: CN=VeriSign Class 1 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only",
+OU=VeriSign Trust Network,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass2g2ca
+Owner DN: OU=VeriSign Trust Network,
+OU="(c) 1998 VeriSign, Inc. - For authorized use only",
+OU=Class 2 Public Primary Certification Authority - G2,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass2g3ca
+Owner DN: CN=VeriSign Class 2 Public Primary Certification Authority - G3,
+OU="(c) 1999 VeriSign, Inc. - For authorized use only",
+OU=VeriSign Trust Network,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass3g2ca
+Owner DN: OU=VeriSign Trust Network,
+OU="(c) 1998 VeriSign, Inc. - For authorized use only",
+OU=Class 3 Public Primary Certification Authority - G2,
+O="VeriSign, Inc.", C=US
+Alias: verisignclass3g3ca
+Owner DN: CN=VeriSign Class 3 Public Primary Certification Authority - G3,
+OU="(c) 1999 VeriSign, Inc. - For authorized use only",
+OU=VeriSign Trust Network,
+O="VeriSign, Inc.", C=US
+Alias: baltimorecodesigningca
+Owner DN: CN=Baltimore CyberTrust Code Signing Root,
+OU=CyberTrust, O=Baltimore, C=IE
+Alias: gtecybertrustglobalca
+Owner DN: CN=GTE CyberTrust Global Root,
+OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
+Alias: baltimorecybertrustca
+Owner DN: CN=Baltimore CyberTrust Root,
+OU=CyberTrust, O=Baltimore, C=IE
+Alias: gtecybertrust5ca
+Owner DN: CN=GTE CyberTrust Root 5,
+OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
+Alias: entrustclientca
+Owner DN: CN=Entrust.net Client Certification Authority,
+OU=(c) 1999 Entrust.net Limited,
+OU=www.entrust.net/Client_CA_Info/CPS incorp. by ref. limits liab.,
+O=Entrust.net, C=US
+Alias: entrustglobalclientca
+Owner DN: CN=Entrust.net Client Certification Authority,
+OU=(c) 2000 Entrust.net Limited,
+OU=www.entrust.net/GCCA_CPS incorp. by ref. (limits liab.),
+O=Entrust.net
+Alias: entrust2048ca
+Owner DN: CN=Entrust.net Certification Authority (2048),
+OU=(c) 1999 Entrust.net Limited,
+OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.),
+O=Entrust.net
+Alias: entrustsslca
+Owner DN: CN=Entrust.net Secure Server Certification Authority,
+OU=(c) 1999 Entrust.net Limited,
+OU=www.entrust.net/CPS incorp. by ref. (limits liab.),
+O=Entrust.net, C=US
+Alias: entrustgsslca
+Owner DN: CN=Entrust.net Secure Server Certification Authority,
+OU=(c) 2000 Entrust.net Limited,
+OU=www.entrust.net/SSL_CPS incorp. by ref. (limits liab.),
+O=Entrust.net
+Alias: godaddyclass2ca
+Owner DN: OU=Go Daddy Class 2 Certification Authority,
+O="The Go Daddy Group, Inc.", C=US
+Alias: starfieldclass2ca
+Owner DN: OU=Starfield Class 2 Certification Authority,
+O="Starfield Technologies, Inc.", C=US
+Alias: valicertclass2ca
+Owner DN: EMAILADDRESS=info@valicert.com,
+CN=http://www.valicert.com/,
+OU=ValiCert Class 2 Policy Validation Authority,
+O="ValiCert, Inc.", L=ValiCert Validation Network
+Alias: geotrustglobalca
+Owner DN: CN=GeoTrust Global CA,
+O=GeoTrust Inc., C=US
+Alias: equifaxsecureca
+Owner DN: OU=Equifax Secure Certificate Authority,
+O=Equifax, C=US
+Alias: equifaxsecureebusinessca1
+Owner DN: CN=Equifax Secure eBusiness CA-1,
+O=Equifax Secure Inc., C=US
+Alias: equifaxsecureebusinessca2
+Owner DN: OU=Equifax Secure eBusiness CA-2,
+O=Equifax Secure, C=US
+Alias: equifaxsecureglobalebusinessca1
+Owner DN: CN=Equifax Secure Global eBusiness CA-1,
+O=Equifax Secure Inc., C=US
+Alias: soneraclass1ca
+Owner DN: CN=Sonera Class1 CA, O=Sonera, C=FI
+Alias: soneraclass2ca
+Owner DN: CN=Sonera Class2 CA, O=Sonera, C=FI
+Alias: comodoaaaca
+Owner DN: CN=AAA Certificate Services,
+O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+Alias: addtrustclass1ca
+Owner DN: CN=AddTrust Class 1 CA Root,
+OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+Alias: addtrustexternalca
+Owner DN: CN=AddTrust External CA Root,
+OU=AddTrust External TTP Network, O=AddTrust AB, C=SE
+Alias: addtrustqualifiedca
+Owner DN: CN=AddTrust Qualified CA Root,
+OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+Alias: utnuserfirsthardwareca
+Owner DN: CN=UTN-USERFirst-Hardware,
+OU=http://www.usertrust.com, O=The USERTRUST Network,
+L=Salt Lake City, ST=UT, C=US
+Alias: utnuserfirstclientauthemailca
+Owner DN: CN=UTN-USERFirst-Client Authentication and Email,
+OU=http://www.usertrust.com, O=The USERTRUST Network,
+L=Salt Lake City, ST=UT, C=US
+Alias: utndatacorpsgcca
+Owner DN: CN=UTN - DATACorp SGC,
+OU=http://www.usertrust.com, O=The USERTRUST Network,
+L=Salt Lake City, ST=UT, C=US
+Alias: utnuserfirstobjectca
+Owner DN: CN=UTN-USERFirst-Object,
+OU=http://www.usertrust.com, O=The USERTRUST Network,
+L=Salt Lake City, ST=UT, C=US
