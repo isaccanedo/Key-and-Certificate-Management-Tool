@@ -1,5 +1,6 @@
 # Key-and-Certificate-Management-Tool
-:lock: # keytool - Ferramenta de gerenciamento de chave e certificado
+:lock: # keytool - Ferramenta de gerenciamento de chave e certificado.
+
 Gerencia um keystore (banco de dados) de chaves criptográficas, cadeias de certificados X.509 e certificados confiáveis.
 
 Nota: A interface do comando keytool foi alterada no Java SE 6. Observe que os comandos definidos anteriormente ainda são suportados.
