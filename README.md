@@ -458,5 +458,56 @@ Por exemplo, se você tiver um pacote de provedor que fornece uma implementaçã
 ```
 keystore.type=pkcs12
 ```
+Observação: maiúsculas e minúsculas não importam nas designações de tipo de armazenamento de chaves. Por exemplo, "JKS" seria considerado o mesmo que "jks".
 
+### Certificado
+Um certificado (também conhecido como certificado de chave pública) é uma declaração assinada digitalmente de uma entidade (o emissor), dizendo que a chave pública (e algumas outras informações) de outra entidade (o assunto) tem algum valor específico.
+
+### Termos do certificado
+#### Chaves Públicas
+Esses são números associados a uma entidade específica e devem ser conhecidos por todos que precisam ter interações confiáveis ​​com essa entidade. As chaves públicas são usadas para verificar assinaturas.
+#### Assinado Digitalmente
+Se alguns dados são assinados digitalmente, eles foram armazenados com a "identidade" de uma entidade e uma assinatura que prova que a entidade conhece os dados. Os dados são tornados não passíveis de comprovação ao assinar com a chave privada da entidade.
+#### Identidade
+Uma forma conhecida de se dirigir a uma entidade. Em alguns sistemas, a identidade é a chave pública; em outros, pode ser qualquer coisa, desde um UID Unix até um endereço de e-mail e um nome distinto X.509.
+#### Assinatura
+Uma assinatura é calculada sobre alguns dados usando a chave privada de uma entidade (o signatário, que no caso de um certificado também é conhecido como o emissor).
+#### Chaves Privadas
+Esses são números, cada um dos quais deve ser conhecido apenas pela entidade particular de quem pertence a chave privada (ou seja, deve ser mantida em segredo). As chaves privadas e públicas existem em pares em todos os sistemas de criptografia de chave pública (também chamados de "sistemas criptográficos de chave pública"). Em um sistema criptográfico de chave pública típico, como o DSA, uma chave privada corresponde exatamente a uma chave pública. As chaves privadas são usadas para calcular assinaturas.
+#### Entidade
+Uma entidade é uma pessoa, organização, programa, computador, empresa, banco ou qualquer outra coisa em que você confia até certo ponto.
+
+Basicamente, a criptografia de chave pública requer acesso às chaves públicas dos usuários. Em um ambiente de rede em grande escala, é impossível garantir que relacionamentos anteriores entre entidades de comunicação tenham sido estabelecidos ou que exista um repositório confiável com todas as chaves públicas usadas. Os certificados foram inventados como uma solução para este problema de distribuição de chaves públicas. Agora, uma Autoridade de Certificação (CA) pode atuar como um terceiro confiável. CAs são entidades (por exemplo, empresas) confiáveis ​​para assinar (emitir) certificados para outras entidades. Presume-se que as CAs criarão apenas certificados válidos e confiáveis, já que estão sujeitos a acordos legais. Existem muitas autoridades de certificação públicas, como VeriSign, Thawte, Entrust e assim por diante. Você também pode executar sua própria Autoridade de Certificação usando produtos como Netscape / Microsoft Certificate Servers ou o produto Entrust CA para sua organização.
+
+Usando o keytool, é possível exibir, importar e exportar certificados. Também é possível gerar certificados autoassinados.
+
+keytool atualmente lida com certificados X.509.
+
+### Certificados X.509
+O padrão X.509 define quais informações podem entrar em um certificado e descreve como anotá-las (o formato dos dados). Todos os dados em um certificado são codificados usando dois padrões relacionados chamados ASN.1 / DER. A notação de sintaxe abstrata 1 descreve os dados. As regras de codificação definidas descrevem uma única maneira de armazenar e transferir esses dados.
+Todos os certificados X.509 possuem os seguintes dados, além da assinatura:
+#### Versão
+Isso identifica qual versão do padrão X.509 se aplica a este certificado, o que afeta quais informações podem ser especificadas nele. Até agora, três versões foram definidas. O keytool pode importar e exportar certificados v1, v2 e v3. Ele gera certificados v3.
+O X.509 Versão 1 está disponível desde 1988, é amplamente implantado e é o mais genérico.
+
+O X.509 Versão 2 introduziu o conceito de identificadores exclusivos de assunto e emissor para lidar com a possibilidade de reutilização de nomes de assunto e / ou emissor ao longo do tempo. A maioria dos documentos de perfil de certificado recomenda fortemente que os nomes não sejam reutilizados e que os certificados não façam uso de identificadores exclusivos. Os certificados da versão 2 não são amplamente usados.
+
+A versão 3 do X.509 é a mais recente (1996) e suporta a noção de extensões, onde qualquer pessoa pode definir uma extensão e incluí-la no certificado. Algumas extensões comuns em uso hoje são: KeyUsage (limita o uso das chaves a finalidades específicas, como "somente assinatura") e AlternativeNames (permite que outras identidades também sejam associadas a essa chave pública, por exemplo, nomes DNS, endereços de e-mail, IP endereços). As extensões podem ser marcadas como críticas para indicar que a extensão deve ser verificada e reforçada / usada. Por exemplo, se um certificado tiver a extensão KeyUsage marcada como crítica e definida como "keyCertSign", se este certificado for apresentado durante a comunicação SSL, ele deve ser rejeitado, pois a extensão do certificado indica que a chave privada associada deve ser usada apenas para assinar certificados e não para uso de SSL.
+
+#### Número de série
+A entidade que criou o certificado é responsável por atribuir a ele um número de série para distingui-lo de outros certificados que emite. Essas informações são usadas de várias maneiras, por exemplo, quando um certificado é revogado, seu número de série é colocado em uma Lista de Revogação de Certificado (CRL).
+#### Identificador de Algoritmo de Assinatura
+Isso identifica o algoritmo usado pela CA para assinar o certificado.
+#### Nome do Emissor
+O nome distinto X.500 da entidade que assinou o certificado. Normalmente é um CA. Usar este certificado implica em confiar na entidade que o assinou. (Observe que, em alguns casos, como certificados de CA raiz ou de nível superior, o emissor assina seu próprio certificado.)
+#### Período de validade
+Cada certificado é válido apenas por um período limitado de tempo. Esse período é descrito por uma data e hora de início e uma data e hora de término, e pode ser tão curto quanto alguns segundos ou quase tão longo quanto um século. O período de validade escolhido depende de vários fatores, como a força da chave privada usada para assinar o certificado ou o valor que se está disposto a pagar por um certificado. Este é o período esperado em que as entidades podem contar com o valor público, se a chave privada associada não tiver sido comprometida.
+#### Nome do assunto
+O nome da entidade cuja chave pública o certificado identifica. Este nome usa o padrão X.500, portanto, deve ser exclusivo na Internet. Este é o nome distinto (DN) X.500 da entidade, por exemplo,
+```
+CN=Java Duke, OU=Java Software Division, O=Sun Microsystems Inc, C=US
+```
+(Referem-se ao nome comum, unidade organizacional, organização e país do sujeito.)
+Informações de chave pública do assunto
+Esta é a chave pública da entidade que está sendo nomeada, junto com um identificador de algoritmo que especifica a qual sistema criptográfico de chave pública esta chave pertence e quaisquer parâmetros de chave associados.
 
