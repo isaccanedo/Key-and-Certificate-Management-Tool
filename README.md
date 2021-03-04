@@ -154,8 +154,8 @@ KeyStore.SecretKeyEntry identified by alias.
 ```
 -importcert {-alias alias} {-file cert_file} [-keypass keypass] {-noprompt} 
 {-trustcacerts} {-storetype storetype} {-keystore keystore} [-storepass storepass] 
-{-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} {-v} {-protected} 
-{-Jjavaoption}
+{-providerName provider_name} {-providerClass provider_class_name {-providerArg provider_arg}} 
+{-v} {-protected} {-Jjavaoption}
 ```
 
 
